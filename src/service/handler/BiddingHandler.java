@@ -68,7 +68,7 @@ public class BiddingHandler extends ConnectionHandler {
                 Utils.send(out, res.toString());
 
                 HASHING_CHAIN_TABLE.chain(itemId, Utils.digest(req.toString()));
-                Utils.appendAndDigest(ATTESTATION, req.toString() + '\n');
+//                Utils.appendAndDigest(ATTESTATION, req.toString() + '\n');
             } finally {
                 LOCK.unlock();
             }
@@ -86,7 +86,7 @@ public class BiddingHandler extends ConnectionHandler {
                 PRICE_TABLE.put(req.getItemId(), bidderPrice);
             }
             
-            System.out.format("decrypted price: %d, now highest price is %d",
+            System.out.format("decrypted price: %d, now highest price is %d\n",
                     bidderPrice, Math.max(bidderPrice, currentPrice));
             
             Acknowledgement ack = new Acknowledgement(userId, price, bidSuccess, rr);

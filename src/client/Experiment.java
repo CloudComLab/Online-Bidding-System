@@ -18,6 +18,9 @@ public class Experiment {
         
         Utils.cleanAllAttestations();
         
+        // manually initialize jose4j
+        org.jose4j.jwa.AlgorithmFactoryFactory.getInstance();
+        
         Bidder bidder = new Bidder(Key.CLIENT, Key.SERVICE_PROVIDER);
         
         int bidTimes = 3;

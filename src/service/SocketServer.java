@@ -74,6 +74,9 @@ public class SocketServer extends Thread {
         Utils.createRequiredFiles();
         Utils.cleanAllAttestations();
         
+        // manually initialize jose4j
+        org.jose4j.jwa.AlgorithmFactoryFactory.getInstance();
+        
         new SocketServer(NonCAPHandler.class, Config.NONCAP_SERVICE_PORT).start();
         new SocketServer(BiddingHandler.class, Config.BIDDING_SERVICE_PORT).start();
         

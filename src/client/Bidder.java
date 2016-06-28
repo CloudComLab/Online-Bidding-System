@@ -79,9 +79,9 @@ public class Bidder extends Client {
 
         lastChainHash = Utils.digest(req.toString());
 
-        synchronized (this) {
-            Utils.write(ATTESTATION, req.toString());
-        }
+//        synchronized (this) {
+//            Utils.write(ATTESTATION, req.toString());
+//        }
 
         ReplyResponse rr = new ReplyResponse(k1, k2, res);
 
@@ -97,7 +97,7 @@ public class Bidder extends Client {
             result += "bid price is lower than other's.\n";
         }
 
-        String fname = "";
+//        String fname = "";
 
         switch (op.getType()) {
             case BID:
@@ -110,17 +110,17 @@ public class Bidder extends Client {
                 }
                 
                 break;
-            case AUDIT:
-                fname = String.format("%s/%s%s",
-                            Config.DOWNLOADS_DIR_PATH,
-                            op.getPath(),
-                            fname);
-
-                File file = new File(fname);
-
-                Utils.receive(in, file);
-
-                break;
+//            case AUDIT:
+//                fname = String.format("%s/%s%s",
+//                            Config.DOWNLOADS_DIR_PATH,
+//                            op.getPath(),
+//                            fname);
+//
+//                File file = new File(fname);
+//
+//                Utils.receive(in, file);
+//
+//                break;
         }
         
         System.out.print(result);
