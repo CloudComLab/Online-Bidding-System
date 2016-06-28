@@ -1,0 +1,27 @@
+.DS_Store
+
+#ant specific
+dist/
+build/
+data/
+downloads/
+attestations/
+ 
+#netbeans specific
+core
+nbproject/*
+!nbproject/build-impl.xml
+!nbproject/project.properties
+!nbproject/project.xml
+ 
+#java specific
+*.class
+ 
+#general swap/backup files
+*.so
+*.log
+*.out
+*~
+*.swp
+*.DS_Store
+*.lock
