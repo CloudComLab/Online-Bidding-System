@@ -3,6 +3,7 @@ package service.handler;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.net.DatagramPacket;
 import java.net.Socket;
 import java.security.SignatureException;
 import java.util.concurrent.locks.ReentrantLock;
@@ -108,5 +109,11 @@ public class NonCAPHandler extends ConnectionHandler {
                 LOCK.unlock();
             }
         }
+    }
+
+    @Override
+    protected void handle(DatagramPacket datagramPacket)
+            throws SignatureException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
