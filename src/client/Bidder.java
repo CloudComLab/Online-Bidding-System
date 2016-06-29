@@ -3,10 +3,17 @@ package client;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import message.BidOperation;
 import message.bidding.*;
@@ -30,7 +37,7 @@ public class Bidder extends Client {
     }
 
     private String lastChainHash;
-
+    
     public Bidder(Key cliKey, Key spKey) {
         super(Config.SERVICE_HOSTNAME,
               Config.BIDDING_SERVICE_PORT,
@@ -46,8 +53,7 @@ public class Bidder extends Client {
     }
 
     @Override
-    protected void handle(Operation op, Socket socket, DataOutputStream out, DataInputStream in)
-            throws SignatureException, IllegalAccessException {
+    public void execute(Operation op) {
         if (op.getType() == OperationType.AUDIT) {
             return ;
         }
@@ -55,75 +61,84 @@ public class Bidder extends Client {
         BidOperation bidOp = new BidOperation(op);
 
         Random r = new Random();
-        String k1 = "k1-" + r.nextLong();
-        String k2 = "k2-" + r.nextLong();
+        final String k1 = "k1-" + r.nextLong();
+        final String k2 = "k2-" + r.nextLong();
+        final int tcpPort = Utils.findAvailableTcpPort();
 
         Request req = new Request(
                 bidOp.getItemId(),
                 CryptoUtils.encrypt(k1, bidOp.getUserId()),
-                CryptoUtils.encrypt(k2, bidOp.getPrice()));
+                CryptoUtils.encrypt(k2, bidOp.getPrice()),
+                tcpPort);
 
         req.sign(clientKeyPair, clientKeyInfo);
 
-        Utils.send(out, req.toString());
-
-        Response res = new Response(
-                Utils.receive(in),
-                (RSAPublicKey) serviceProviderKeyPair.getPublic());
-
-        String result = "";
-
-        if (!lastChainHash.equals(res.getChainHash())) {
-            result += "chain hash mismatch.\n";
-        }
-
-        lastChainHash = Utils.digest(req.toString());
-
-//        synchronized (this) {
-//            Utils.write(ATTESTATION, req.toString());
-//        }
-
-        ReplyResponse rr = new ReplyResponse(k1, k2, res);
-
-        rr.sign(clientKeyPair, clientKeyInfo);
-
-        Utils.send(out, rr.toString());
-
-        Acknowledgement ack = new Acknowledgement(
-                Utils.receive(in),
-                (RSAPublicKey) serviceProviderKeyPair.getPublic());
-
-        if (!ack.isBidSuccess()) {
-            result += "bid price is lower than other's.\n";
-        }
-
-//        String fname = "";
-
-        switch (op.getType()) {
-            case BID:
-                if (!bidOp.getUserId().equals(ack.getUserId())) {
-                    result += "user id is not correctly decrypted.\n";
-                }
-                
-                if (!bidOp.getPrice().equals(ack.getPrice())) {
-                    result += "price is not correctly decrypted.\n";
-                }
-                
-                break;
-//            case AUDIT:
-//                fname = String.format("%s/%s%s",
-//                            Config.DOWNLOADS_DIR_PATH,
-//                            op.getPath(),
-//                            fname);
-//
-//                File file = new File(fname);
-//
-//                Utils.receive(in, file);
-//
-//                break;
+        try (DatagramSocket clientSocket = new DatagramSocket()) {
+            byte[] reqBytes = req.toString().getBytes();
+            DatagramPacket reqPacket = new DatagramPacket(
+                    reqBytes,
+                    reqBytes.length,
+                    InetAddress.getByName(Config.SERVICE_HOSTNAME),
+                    Config.BIDDING_SERVICE_UDP_PORT);
+            
+            clientSocket.send(reqPacket);
+        } catch (IOException ex) {
+            Logger.getLogger(Bidder.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        System.out.print(result);
+        try (ServerSocket socketServer = new ServerSocket(tcpPort);
+             Socket socket = socketServer.accept();
+             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+             DataInputStream in = new DataInputStream(socket.getInputStream())) {
+            
+            Response res = new Response(
+                    Utils.receive(in),
+                    (RSAPublicKey) serviceProviderKeyPair.getPublic());
+
+            String result = "";
+
+            if (!lastChainHash.equals(res.getChainHash())) {
+                result += "chain hash mismatch.\n";
+            }
+
+            lastChainHash = Utils.digest(req.toString());
+
+            ReplyResponse rr = new ReplyResponse(k1, k2, res);
+
+            rr.sign(clientKeyPair, clientKeyInfo);
+
+            Utils.send(out, rr.toString());
+
+            Acknowledgement ack = new Acknowledgement(
+                    Utils.receive(in),
+                    (RSAPublicKey) serviceProviderKeyPair.getPublic());
+
+            if (!ack.isBidSuccess()) {
+                result += "bid price is lower than other's.\n";
+            }
+
+            switch (op.getType()) {
+                case BID:
+                    if (!bidOp.getUserId().equals(ack.getUserId())) {
+                        result += "user id is not correctly decrypted.\n";
+                    }
+
+                    if (!bidOp.getPrice().equals(ack.getPrice())) {
+                        result += "price is not correctly decrypted.\n";
+                    }
+
+                    break;
+            }
+
+            System.out.print(result);
+        } catch (IOException | SignatureException ex) {
+            Logger.getLogger(Bidder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    @Override
+    protected void handle(Operation op, Socket socket, DataOutputStream out, DataInputStream in)
+            throws SignatureException, IllegalAccessException {
     }
     
     @Override

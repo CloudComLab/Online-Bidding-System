@@ -11,21 +11,24 @@ import message.MessageType;
  * @author Scott
  */
 public class Request extends JsonWebToken {
-    private static final long serialVersionUID = 20160628L;
+    private static final long serialVersionUID = 20160629L;
     private final Integer itemId;
     private final String encryptedUserId;
     private final String encryptedPrice;
+    private final Integer availableTcpPort;
     
-    public Request(Integer itemId, String encUserId, String encPrice) {
+    public Request(Integer itemId, String encUserId, String encPrice, Integer port) {
         super(MessageType.Request);
         
         this.itemId = itemId;
         this.encryptedUserId = encUserId;
         this.encryptedPrice = encPrice;
+        this.availableTcpPort = port;
         
         super.add2Body("item-id", itemId.toString());
         super.add2Body("user-id", encryptedUserId);
         super.add2Body("price", encryptedPrice);
+        super.add2Body("port", availableTcpPort.toString());
     }
     
     public Request(String qStr, RSAPublicKey publicKey)
@@ -35,6 +38,7 @@ public class Request extends JsonWebToken {
         this.itemId = Integer.decode(String.valueOf(bodyContents.get("item-id")));
         this.encryptedUserId = String.valueOf(bodyContents.get("user-id"));
         this.encryptedPrice = String.valueOf(bodyContents.get("price"));
+        this.availableTcpPort = Integer.decode(String.valueOf(bodyContents.get("port")));
     }
     
     public Integer getItemId() {
@@ -47,5 +51,9 @@ public class Request extends JsonWebToken {
     
     public String getEncryptedPrice() {
         return encryptedPrice;
+    }
+    
+    public Integer getPort() {
+        return availableTcpPort;
     }
 }

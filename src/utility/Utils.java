@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
@@ -62,6 +63,32 @@ public class Utils {
         }
         
         return bytes;
+    }
+    
+    /**
+     * Discover an available port in local host.
+     * @return the available port number
+     */
+    public static int findAvailableTcpPort() {
+        Random r = new Random();
+        int port;
+        
+        do {
+            port = r.nextInt(30000) + 10000;
+        } while (!isTcpPortAvailable(port));
+        
+        return port;
+    }
+    
+    /**
+     * Determine whether the specific TCP port is available or not.
+     */
+    public static boolean isTcpPortAvailable(int port) {
+        try (Socket s = new Socket("localhost", port)) {
+            return false;
+        } catch (IOException e) {
+            return true;
+        }
     }
     
     /**

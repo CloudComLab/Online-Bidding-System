@@ -17,7 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import message.Operation;
-import message.OperationType;
 import service.Config;
 import service.Key;
 import service.KeyManager;
@@ -72,7 +71,7 @@ public abstract class Client {
                                    DataInputStream in)
         throws SignatureException, IllegalAccessException;
     
-    public final void execute(Operation op) {
+    public void execute(Operation op) {
         try (Socket socket = new Socket(hostname, port);
              DataOutputStream out = new DataOutputStream(socket.getOutputStream());
              DataInputStream in = new DataInputStream(socket.getInputStream())) {

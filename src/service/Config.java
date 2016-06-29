@@ -8,6 +8,7 @@ public interface Config {
     public String SERVICE_HOSTNAME = "localhost";
     public int NONCAP_SERVICE_PORT = 3000;
     public int BIDDING_SERVICE_PORT = 3001;
+    public int BIDDING_SERVICE_UDP_PORT = 6001;
     
     public String DATA_DIR_PATH = "data";
     public String ATTESTATION_DIR_PATH = "attestations";

@@ -42,6 +42,7 @@ public class BiddingHandler extends ConnectionHandler {
         super(socket, key);
     }
     
+    // https://systembash.com/a-simple-java-udp-server-and-udp-client/
     @Override
     protected void handle(DataOutputStream out, DataInputStream in)
             throws SignatureException, IllegalAccessException {
