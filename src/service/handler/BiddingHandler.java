@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.Socket;
 import java.security.SignatureException;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -60,9 +61,9 @@ public class BiddingHandler extends ConnectionHandler {
         KeyManager keyManager = KeyManager.getInstance();
         RSAPublicKey clientPubKey = (RSAPublicKey) keyManager.getPublicKey(Key.CLIENT);
         
-        String reqStr = new String(datagramPacket.getData());
-        Request req = new Request(reqStr, clientPubKey);
-
+        byte[] reqBytes = Arrays.copyOf(datagramPacket.getData(), datagramPacket.getLength());
+        Request req = new Request(new String(reqBytes), clientPubKey);
+        
         String chainHash = null;
         
         LOCK.lock();
@@ -81,7 +82,7 @@ public class BiddingHandler extends ConnectionHandler {
         Response res = new Response(chainHash, req);
 
         res.sign(keyPair, keyInfo);
-
+        
         try (Socket s = new Socket(datagramPacket.getAddress(), req.getPort());
              DataOutputStream out = new DataOutputStream(s.getOutputStream());
              DataInputStream in = new DataInputStream(s.getInputStream())) {

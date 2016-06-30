@@ -25,8 +25,8 @@ public class Request extends JsonWebToken {
         this.encryptedPrice = encPrice;
         this.availableTcpPort = port;
         
-        super.add2Body("item-id", itemId.toString());
-        super.add2Body("user-id", encryptedUserId);
+        super.add2Body("item", itemId.toString());
+        super.add2Body("uid", encryptedUserId);
         super.add2Body("price", encryptedPrice);
         super.add2Body("port", availableTcpPort.toString());
     }
@@ -35,8 +35,8 @@ public class Request extends JsonWebToken {
             throws SignatureException {
         super(qStr, publicKey);
         
-        this.itemId = Integer.decode(String.valueOf(bodyContents.get("item-id")));
-        this.encryptedUserId = String.valueOf(bodyContents.get("user-id"));
+        this.itemId = Integer.decode(String.valueOf(bodyContents.get("item")));
+        this.encryptedUserId = String.valueOf(bodyContents.get("uid"));
         this.encryptedPrice = String.valueOf(bodyContents.get("price"));
         this.availableTcpPort = Integer.decode(String.valueOf(bodyContents.get("port")));
     }

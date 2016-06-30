@@ -34,7 +34,7 @@ public class JsonWebToken extends CAPMessage {
         jws = new JsonWebSignature();
         body = new JwtClaims();
         
-        body.setSubject(type.name());
+        body.setSubject(type.toString());
         jws.setPayload(body.toJson());
         
         dirty = false;
@@ -120,7 +120,7 @@ public class JsonWebToken extends CAPMessage {
      */
     public void sign(RSAPrivateKey privateKey, String keyId, String algorithm) {
         jws.setKey(privateKey);
-        jws.setKeyIdHeaderValue(keyId);
+//        jws.setKeyIdHeaderValue(keyId);
         jws.setAlgorithmHeaderValue(algorithm);
     }
     
