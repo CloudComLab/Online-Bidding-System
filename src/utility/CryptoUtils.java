@@ -4,11 +4,20 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -23,8 +32,17 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Scott
  */
 public class CryptoUtils {
-    public static Encoder BASE64_ENCODER = Base64.getEncoder();
-    public static Decoder BASE64_DECODER = Base64.getDecoder();
+    public static final Logger LOGGER;
+    
+    public static final Encoder BASE64_ENCODER;
+    public static final Decoder BASE64_DECODER;
+    
+    static {
+        LOGGER = Logger.getLogger(CryptoUtils.class.getName());
+        
+        BASE64_ENCODER = Base64.getEncoder();
+        BASE64_DECODER = Base64.getDecoder();
+    }
     
     public static byte[] shrinkByteArray(final byte[] input, int targetSize) {
         if (input.length < targetSize) {
@@ -139,5 +157,39 @@ public class CryptoUtils {
 
             return null;
         }
+    }
+    
+    public static String encodeKey(Key key) {
+        return BASE64_ENCODER.encodeToString(key.getEncoded());
+    }
+    
+    public static PublicKey decodePublicKey(String publicKeyStr) {
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            
+            byte[] pkBytes = BASE64_DECODER.decode(publicKeyStr);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pkBytes);
+            
+            return keyFactory.generatePublic(keySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+    
+    public static PrivateKey decodePrivateKey(String privateKeyStr) {
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            
+            byte[] pkBytes = BASE64_DECODER.decode(privateKeyStr);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(pkBytes);
+            
+            return keyFactory.generatePrivate(keySpec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
     }
 }
