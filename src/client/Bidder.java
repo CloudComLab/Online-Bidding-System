@@ -31,6 +31,7 @@ import utility.Utils;
  */
 public class Bidder extends Client {
     private static final File ATTESTATION;
+    public static long TotalCost = -1;
 
     static {
         ATTESTATION = new File(Config.ATTESTATION_DIR_PATH + "/client/bidding");
@@ -58,12 +59,14 @@ public class Bidder extends Client {
             return ;
         }
         
+        final int tcpPort = Utils.findAvailableTcpPort();
+        
+        long time = System.currentTimeMillis();
         BidOperation bidOp = new BidOperation(op);
 
         Random r = new Random();
         final String k1 = "k1-" + r.nextLong();
         final String k2 = "k2-" + r.nextLong();
-        final int tcpPort = Utils.findAvailableTcpPort();
 
         Request req = new Request(
                 bidOp.getItemId(),
@@ -133,6 +136,12 @@ public class Bidder extends Client {
             System.out.print(result);
         } catch (IOException | SignatureException ex) {
             Logger.getLogger(Bidder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if (TotalCost < 0) {
+            TotalCost = 0;
+        } else {
+            TotalCost += System.currentTimeMillis() - time;
         }
     }
     

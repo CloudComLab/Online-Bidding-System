@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -84,7 +85,8 @@ public class Utils {
      * Determine whether the specific TCP port is available or not.
      */
     public static boolean isTcpPortAvailable(int port) {
-        try (Socket s = new Socket("localhost", port)) {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("localhost", port), 10);
             return false;
         } catch (IOException e) {
             return true;

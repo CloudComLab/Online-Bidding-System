@@ -53,5 +53,7 @@ public class Experiment {
         classLoader.loadClass(Bidder.class.getName());
         
         bidder.run(ops, bidTimes);
+        
+        System.out.println(Bidder.TotalCost / (bidTimes - 1));
     }
 }
