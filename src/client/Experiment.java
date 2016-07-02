@@ -40,6 +40,7 @@ public class Experiment {
         keyAck.sign(keyManager.getKeyPair(Key.SERVICE_PROVIDER), keyManager.getKeyInfo(Key.SERVICE_PROVIDER));
         System.out.println("KeyAck: " + keyAck.toString().length());
         
+        IntuitiveBidder iBidder = new IntuitiveBidder(Key.CLIENT, Key.SERVICE_PROVIDER);
         Bidder bidder = new Bidder(Key.CLIENT, Key.SERVICE_PROVIDER);
         
         int bidTimes = 1;
@@ -50,8 +51,10 @@ public class Experiment {
             ops.add(new BidOperation(10, "bidder", "" + (100 * (i + 1))));
         }
         
+        classLoader.loadClass(IntuitiveBidder.class.getName());
         classLoader.loadClass(Bidder.class.getName());
         
+        iBidder.run(ops, bidTimes);
         bidder.run(ops, bidTimes);
     }
 }
