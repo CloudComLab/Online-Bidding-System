@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import service.handler.ConnectionHandler;
-import service.handler.NonCAPHandler;
+import service.handler.IntuitiveBiddingHandler;
 import service.handler.BiddingHandler;
 import utility.Utils;
 
@@ -115,9 +115,9 @@ public class SocketServer extends Thread {
         // manually initialize jose4j
         org.jose4j.jwa.AlgorithmFactoryFactory.getInstance();
         
-        new SocketServer(ConnectionType.TCP,
-                         NonCAPHandler.class,
-                         Config.NONCAP_SERVICE_PORT).start();
+        new SocketServer(ConnectionType.UDP,
+                         IntuitiveBiddingHandler.class,
+                         Config.INTUITIVE_BIDDER_SERVICE_UDP_PORT).start();
         new SocketServer(ConnectionType.UDP,
                          BiddingHandler.class,
                          Config.BIDDING_SERVICE_UDP_PORT).start();
