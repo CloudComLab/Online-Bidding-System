@@ -43,7 +43,7 @@ public class Experiment {
         IntuitiveBidder iBidder = new IntuitiveBidder(Key.CLIENT, Key.SERVICE_PROVIDER);
         Bidder bidder = new Bidder(Key.CLIENT, Key.SERVICE_PROVIDER);
         
-        int bidTimes = 1;
+        int bidTimes = 100;
         
         List<Operation> ops = new ArrayList<>();
         
@@ -57,6 +57,8 @@ public class Experiment {
         iBidder.run(ops, bidTimes);
         bidder.run(ops, bidTimes);
         
-        System.out.println(Bidder.TotalCost / (bidTimes - 1));
+        System.out.println("\nResults:");
+        System.out.println("intuitive bidder: " + (IntuitiveBidder.TotalCost / (bidTimes - 1)));
+        System.out.println("improved  bidder: " + Bidder.TotalCost / (bidTimes - 1));
     }
 }

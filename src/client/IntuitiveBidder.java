@@ -28,6 +28,8 @@ import utility.Utils;
  * @author Scott
  */
 public class IntuitiveBidder extends Client {
+    public static long TotalCost = -1;
+    
     private String lastChainHash;
     
     public IntuitiveBidder(Key cliKey, Key spKey) {
@@ -50,9 +52,10 @@ public class IntuitiveBidder extends Client {
             return ;
         }
         
-        BidOperation bidOp = new BidOperation(op);
-
         final int tcpPort = Utils.findAvailableTcpPort();
+
+        long time = System.currentTimeMillis();
+        BidOperation bidOp = new BidOperation(op);
 
         Request req = new Request(
                 bidOp.getItemId(),
@@ -99,6 +102,12 @@ public class IntuitiveBidder extends Client {
             System.out.print(result);
         } catch (IOException | SignatureException ex) {
             Logger.getLogger(Bidder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if (TotalCost < 0) {
+            TotalCost = 0;
+        } else {
+            TotalCost += System.currentTimeMillis() - time;
         }
     }
     
